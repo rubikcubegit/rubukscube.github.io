@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html>
+
+ <meta charset="UTF-8">
+ <title>Play Rubik's cube!</title>
+<meta name="viewport" content="width=400,user-scalable=no">
+ <style>
+  html,body{
+   margin:0;
+   height:100%;
+   width:100%;
+   user-select: none; /* CSS3 */
+   -moz-user-select: none; /* Firefox */
+   -webkit-user-select: none; /* Safari、Chromeなど */
+   -ms-user-select: none; /* IE10かららしい */
+   background-color:skyblue;
+  }
+  
+  .canvas{
+   font-size:0px;
+   background-color:skyblue;
+   width:400px;
+  }
+  
+  .text{font-size:16px;}
+  
+  
+  .div_middle{
+   display:inline-block;
+   vertical-align:top;
+  }
+  
+  
+  #div_left,#div_right{
+   width:75px;
+  }
+  
+  .btnRL{
+   margin:16px 20px 16px 20px;
+   height:50px;
+   background-color:#aaa;
+   font-size:40px;
+   border-radius:5px;
+  }
+  
+  .btnUD{
+  margin:10px 43px 10px 43px;
+  text-align:center;
+  display:inline-block;
+  width:46px;
+  height:50px;
+  background-color:#aaa;
+  font-size:40px;
+  border-radius:5px;
+  }
+  
+  
+  .rubik_stage{
+   -webkit-perspective: 1000;
+   -ms-perspective: 400;
+   -o-perspective: 400;
+   -moz-perspective: 400px;
+   perspective:400;
+   position:static;
+   height:250px;
+   width:250px;
+  }
+  
+  
+  .rubik{
+   /*-webkit-animation:rRubik linear 100s;
+   -webkit-animation-iteration-count:infinite;
+   animation:rRubik linear 100s;
+   animation-iteration-count:infinite;*/
+   transform:rotateX(20deg) rotateY(20deg) rotateZ(20deg);
+   -webkit-transform:rotateX(-20deg) rotateY(-20deg) rotateZ(0deg);
+   -webkit-transform-origin:75px 75px 0px;
+   -webkit-transform-style: preserve-3d;
+   -ms-transform-style: preserve-3d;
+   -o-transform-style: preserve-3d;
+   transform-style: preserve-3d;
+   position:relative;
+   top:50px;
+   left:50px;
+  }
+  
+  .surf{
+   position:absolute;
+   width:150px;
+   height:150px;
+   -webkit-transform-style: preserve-3d;
+   -ms-transform-style: preserve-3d;
+   -o-transform-style: preserve-3d;
+   transform-style: preserve-3d;
+  }
+  
+  .cube{
+  font-size:16px;
+   width:46px;
+   height:46px;
+   margin:2px;
+   outline:2px solid #000;
+   border-radius:6.5px;
+   box-shadow:2px 2px #000,-2px -2px #000,-2px 2px #000,2px -2px #000;
+   display:inline-block;
+   vertical-align:top;
+   -webkit-transform-style: preserve-3d;
+   -ms-transform-style: preserve-3d;
+   -o-transform-style: preserve-3d;
+   transform-style: preserve-3d;
+  }
+  
+  .surf_d{
+   
+   top:75px;
+   -webkit-transform: rotateX(-90deg);
+   -ms-transform: rotateX(-90deg);
+   -o-transform: rotateX(-90deg);
+   transform: rotateX(-90deg);
+  }
+  
+  .surf_u{
+  top:-75px;
+  -webkit-transform: rotateX(-90deg);
+  -ms-transform: rotateX(-90deg);
+  -o-transform: rotateX(-90deg);
+  transform: rotateX(-90deg);
+  }
+  
+  .surf_b{
+   -webkit-transform: translateZ(-75px);
+   -ms-transform: translateZ(-75px);
+   -o-transform: translateZ(-75px);
+   transform: translateZ(-75px);
+  }
+  
+  .surf_f{
+  -webkit-transform: translateZ(75px);
+  -ms-transform: translateZ(75px);
+  -o-transform: translateZ(75px);
+  transform: translateZ(75px);
+  }
+  
+  .surf_l{
+   left:-75px;
+   -webkit-transform: rotateY(90deg);
+   -ms-transform: rotateY(90deg);
+   -o-transform: rotateY(90deg);
+   transform: rotateY(90deg);
+  }
+  
+  .surf_r{
+  left:75px;
+  -webkit-transform: rotateY(90deg);
+  -ms-transform: rotateY(90deg);
+  -o-transform: rotateY(90deg);
+  transform: rotateY(90deg);
+  }
+  
+  
+  .surf_u div{
+   background-color:rgba(255,255,0,0.7);
+  }
+  .surf_d div{
+   background-color:rgba(255,255,255,0.7);
+  }
+  .surf_l div{
+  background-color:rgba(255,100,0,0.7);
+  }
+  .surf_r div{
+  background-color:rgba(255,0,0,0.7);
+  }
+  .surf_f div{
+  background-color:rgba(0,255,0,0.7);
+  }
+  .surf_b div{
+  background-color:rgba(0,0,255,0.7);
+  }
+  
+  
+  
+  
+  
+  
+  /**D面**/
+  
+  .cube_x_1.cube_y_1.cube_d{
+  -webkit-transform-origin:75px 75px -75px;
+  transform-origin:75px 75px -75px;
+  }
+  .cube_x_1.cube_y_2.cube_d{
+  -webkit-transform-origin:75px 50% -75px;
+  transform-origin:75px 50% -75px;
+  }
+  .cube_x_1.cube_y_3.cube_d{
+  -webkit-transform-origin:75px -25px -75px;
+ transform-origin:75px -25px -75px;
+  }
+  
+  .cube_x_2.cube_y_1.cube_d{
+   -webkit-transform-origin:50% 75px -75px;
+  }
+  .cube_x_2.cube_y_2.cube_d{
+   -webkit-transform-origin:50% 50% -75px;
+  }
+  .cube_x_2.cube_y_3.cube_d{
+   -webkit-transform-origin:50% -25px -75px;
+  }
+  
+  .cube_x_3.cube_y_1.cube_d{
+  -webkit-transform-origin:-25px 75px -75px;
+  }
+  .cube_x_3.cube_y_2.cube_d{
+  -webkit-transform-origin:-25px 50% -75px;
+  }
+  .cube_x_3.cube_y_3.cube_d{
+  -webkit-transform-origin:-25px -25px -75px;
+  }
+  
+  /**U面**/
+  
+  .cube_x_1.cube_y_1.cube_u{
+  -webkit-transform-origin:75px 75px 75px;
+  }
+  .cube_x_1.cube_y_2.cube_u{
+  -webkit-transform-origin:75px 50% 75px;
+  }
+  .cube_x_1.cube_y_3.cube_u{
+  -webkit-transform-origin:75px -25px 75px;
+  }
+  
+  .cube_x_2.cube_y_1.cube_u{
+   -webkit-transform-origin:50% 75px 75px;
+  }
+  .cube_x_2.cube_y_2.cube_u{
+   -webkit-transform-origin:50% 50% 75px;
+  }
+  .cube_x_2.cube_y_3.cube_u{
+   -webkit-transform-origin:50% -25px 75px;
+  }
+  
+  .cube_x_3.cube_y_1.cube_u{
+  -webkit-transform-origin:-25px 75px 75px;
+  }
+  .cube_x_3.cube_y_2.cube_u{
+  -webkit-transform-origin:-25px 50% 75px;
+  }
+  .cube_x_3.cube_y_3.cube_u{
+  -webkit-transform-origin:-25px -25px 75px;
+  }
+  
+  
+  /**B面**/
+  
+  .cube_x_1.cube_b.cube_z_1{
+  -webkit-transform-origin:75px -25px 75px;
+  }
+  .cube_x_1.cube_b.cube_z_2{
+  -webkit-transform-origin:75px 25px 75px;
+  }
+  .cube_x_1.cube_b.cube_z_3{
+  -webkit-transform-origin:75px 75px 75px;
+  }
+  
+  .cube_x_2.cube_b.cube_z_1{
+   -webkit-transform-origin:50% -25px 75px;
+  }
+  .cube_x_2.cube_b.cube_z_2{
+   -webkit-transform-origin:50% 25px 75px;
+  }
+  .cube_x_2.cube_b.cube_z_3{
+   -webkit-transform-origin:50% 75px 75px;
+  }
+  
+  .cube_x_3.cube_b.cube_z_1{
+  -webkit-transform-origin:-25px -25px 75px;
+  }
+  .cube_x_3.cube_b.cube_z_2{
+  -webkit-transform-origin:-25px 25px 75px;
+  }
+  .cube_x_3.cube_b.cube_z_3{
+  -webkit-transform-origin:-25px 75px 75px;
+  }
+  
+  /**F面**/
+  
+  .cube_x_1.cube_f.cube_z_1{
+  -webkit-transform-origin:75px -25px -75px;
+  }
+  .cube_x_1.cube_f.cube_z_2{
+  -webkit-transform-origin:75px 25px -75px;
+  }
+  .cube_x_1.cube_f.cube_z_3{
+  -webkit-transform-origin:75px 75px -75px;
+  }
+  
+  .cube_x_2.cube_f.cube_z_1{
+  -webkit-transform-origin:50% -25px -75px;
+  }
+  .cube_x_2.cube_f.cube_z_2{
+  -webkit-transform-origin:50% 25px -75px;
+  }
+  .cube_x_2.cube_f.cube_z_3{
+  -webkit-transform-origin:50% 75px -75px;
+  }
+  
+  .cube_x_3.cube_f.cube_z_1{
+  -webkit-transform-origin:-25px -25px -75px;
+  }
+  .cube_x_3.cube_f.cube_z_2{
+  -webkit-transform-origin:-25px 25px -75px;
+  }
+  .cube_x_3.cube_f.cube_z_3{
+  -webkit-transform-origin:-25px 75px -75px;
+  }
+  
+  /**L面**/
+  .cube_y_1.cube_l.cube_z_1{
+  -webkit-transform-origin:75px -25px 75px;
+  }
+  .cube_y_1.cube_l.cube_z_2{
+  -webkit-transform-origin:75px 25px 75px;
+  }
+  .cube_y_1.cube_l.cube_z_3{
+  -webkit-transform-origin:75px 75px 75px;
+  }
+  
+  .cube_y_2.cube_l.cube_z_1{
+  -webkit-transform-origin:50% -25px 75px;
+  }
+  .cube_y_2.cube_l.cube_z_2{
+  -webkit-transform-origin:50% 25px 75px;
+  }
+  .cube_y_2.cube_l.cube_z_3{
+  -webkit-transform-origin:50% 75px 75px;
+  }
+  
+  .cube_y_3.cube_l.cube_z_1{
+  -webkit-transform-origin:-25px -25px 75px;
+  }
+  .cube_y_3.cube_l.cube_z_2{
+  -webkit-transform-origin:-25px 25px 75px;
+  }
+  .cube_y_3.cube_l.cube_z_3{
+  -webkit-transform-origin:-25px 75px 75px;
+  }
+  
+  /**R面**/
+  
+  .cube_y_1.cube_r.cube_z_1{
+  -webkit-transform-origin:75px -25px -75px;
+  }
+  .cube_y_1.cube_r.cube_z_2{
+  -webkit-transform-origin:75px 25px -75px;
+  }
+  .cube_y_1.cube_r.cube_z_3{
+  -webkit-transform-origin:75px 75px -75px;
+  }
+  
+  .cube_y_2.cube_r.cube_z_1{
+  -webkit-transform-origin:50% -25px -75px;
+  }
+  .cube_y_2.cube_r.cube_z_2{
+  -webkit-transform-origin:50% 25px -75px;
+  }
+  .cube_y_2.cube_r.cube_z_3{
+  -webkit-transform-origin:50% 75px -75px;
+  }
+  
+  .cube_y_3.cube_r.cube_z_1{
+  -webkit-transform-origin:-25px -25px -75px;
+  }
+  .cube_y_3.cube_r.cube_z_2{
+  -webkit-transform-origin:-25px 25px -75px;
+  }
+  .cube_y_3.cube_r.cube_z_3{
+  -webkit-transform-origin:-25px 75px -75px;
+  }
+  
+  
+  #menuBtn{
+   position:absolute;
+   top:5px;
+   left:5px;
+   border-radius:5px;
+   width:40px;
+   height:40px;
+   text-align:center;
+   color:#fff;
+   font-size:30px;
+   background-color:#00f;
+  }
+  
+  #che{
+   display:none;
+  }
+  
+  #menu_div{
+   -webkit-transform: translateX(-105%);
+   transform: translateX(-105%);
+   transition-duration: 0.5s;
+   position:absolute;
+   top:50px;
+   left:0px;
+   font-size:20px;
+   color:#fff;
+   z-index:100;
+   width:240px;
+   height:100%;
+  }
+  
+  
+  
+  #che:checked + #menu_div{
+   background-color:rgba(0,80,80,0.7);
+   -webkit-transform: translateX(0%);
+   transform: translateX(0%);
+  }
+  
+  
+  .range{width:180px;}
+  .output{font-size:20px;}
+  
+  .mkbtn{
+   display:inline-block;
+   margin:5px;
+   width:30px;
+   background-color:#800;
+   text-align:center;
+   border-radius:5px;
+  }
+  
+  #doT{
+   display:inline-block;
+   margin:5px;
+   width:60px;
+   font-size:15px;
+   background-color:#800;
+   text-align:center;
+   border-radius:5px;
+  }
+  
+  
+  #tarea{
+   resize:none;
+   width:230px;
+   height:60px;
+   border:none;
+  }
+  
+  #cominfoBtn{
+   display:inline-block;
+   width:20px;
+   height:20px;
+   background-color:#800;
+   color:#fff;
+   line-height:20px;
+   text-align:center;
+   border-radius:5px;
+  }
+  
+  #cominfoBtn:hover ~ #cominfo{
+   display:block;
+  }
+  
+  
+  #cominfo{
+   display:none;
+   position:absolute;
+   z-index:200;
+   top:10px;
+   left:160px;
+   width:230px;
+   background-color:rgba(0,60,0,0.9);
+   font-size:18px;
+  }
+  
+  
+  
+  
+  @keyframes rRubik{
+  0%{}
+  100%{
+  transform: rotateX(360deg) rotateY(720deg);
+  }
+  }
+  
+  
+  @keyframes rX{
+  0%{
+    transform: rotateX(-90deg);
+   }
+   100%{
+   }
+  }
+  @-webkit-keyframes rX{
+   0%{
+  -webkit-transform: rotateX(-90deg);
+  }
+  100%{}
+  }
+  
+  @keyframes rY{
+  0%{
+  transform: rotateY(-90deg);
+  }
+  100%{}
+  }
+  @-webkit-keyframes rY{
+  0%{
+  -webkit-transform: rotateY(-90deg);
+  }
+  100%{}
+  }
+  
+@keyframes rZ{
+0%{
+  transform: rotateZ(-90deg);
+ }
+ 100%{}
+}
+@-webkit-keyframes rZ{
+0%{
+-webkit-transform: rotateZ(-90deg);
+}
+100%{}
+}
+
+
+
+@keyframes rX_{
+0%{
+  transform: rotateX(90deg);
+ }
+ 100%{}
+}
+@-webkit-keyframes rX_{
+0%{
+-webkit-transform: rotateX(90deg);
+}
+100%{}
+}
+
+@keyframes rY_{
+0%{
+transform: rotateY(90deg);
+}
+100%{}
+}
+@-webkit-keyframes rY_{
+0%{
+-webkit-transform: rotateY(90deg);
+}
+100%{}
+}
+
+@keyframes rZ_{
+0%{
+transform: rotateZ(90deg);
+ }
+ 100%{}
+}
+@-webkit-keyframes rZ_{
+0%{
+-webkit-transform: rotateZ(90deg);
+}
+100%{}
+}
+ </style>
+
+<body>
+<div id="main">
+ <div class="canvas">
+ <div id="div_B">
+  <div class="btnUD" onclick="Rt('B');">B</div>
+  <div class="btnUD" onclick="Rt('S\'');">S'</div>
+  <div class="btnUD" onclick="Rt('B\'');">B'</div>
+ </div>
+ <div id="div_top">
+ <div class="btnUD" onclick="Rt('U');">U</div>
+ <div class="btnUD" onclick="Rt('S');">S</div>
+ <div class="btnUD" onclick="Rt('U\'');">U'</div>
+ </div>
+ <div>
+  <div id="div_left" class="div_middle">
+  <div class="btnRL" onclick="Rt('L\'');">L'</div>
+  <div class="btnRL" onclick="Rt('E\'');">E'</div>
+  <div class="btnRL" onclick="Rt('L');">L</div>
+  </div>
+  <div class="rubik_stage div_middle">
+   <div class="rubik" id="r_1">
+   <div class="surf_d surf">
+    <div class="cube cube_x_1 cube_y_1 cube_d"></div>
+    <div class="cube cube_x_2 cube_y_1 cube_d"></div>
+    <div class="cube cube_x_3 cube_y_1 cube_d"></div>
+    <div class="cube cube_x_1 cube_y_2 cube_d"></div>
+    <div class="cube cube_x_2 cube_y_2 cube_d"></div>
+    <div class="cube cube_x_3 cube_y_2 cube_d"></div>
+    <div class="cube cube_x_1 cube_y_3 cube_d"></div>
+    <div class="cube cube_x_2 cube_y_3 cube_d"></div>
+    <div class="cube cube_x_3 cube_y_3 cube_d"></div>
+   </div>
+   <div class="surf_b surf">
+    <div class="cube cube_x_1 cube_b cube_z_3"></div>
+    <div class="cube cube_x_2 cube_b cube_z_3"></div>
+    <div class="cube cube_x_3 cube_b cube_z_3"></div>
+    <div class="cube cube_x_1 cube_b cube_z_2"></div>
+    <div class="cube cube_x_2 cube_b cube_z_2"></div>
+    <div class="cube cube_x_3 cube_b cube_z_2"></div>
+    <div class="cube cube_x_1 cube_b cube_z_1"></div>
+    <div class="cube cube_x_2 cube_b cube_z_1"></div>
+    <div class="cube cube_x_3 cube_b cube_z_1"></div>
+   </div>
+   <div class="surf_l surf">
+    <div class="cube cube_l cube_y_1 cube_z_3"></div>
+    <div class="cube cube_l cube_y_2 cube_z_3"></div>
+    <div class="cube cube_l cube_y_3 cube_z_3"></div>
+    <div class="cube cube_l cube_y_1 cube_z_2"></div>
+    <div class="cube cube_l cube_y_2 cube_z_2"></div>
+    <div class="cube cube_l cube_y_3 cube_z_2"></div>
+    <div class="cube cube_l cube_y_1 cube_z_1"></div>
+    <div class="cube cube_l cube_y_2 cube_z_1"></div>
+    <div class="cube cube_l cube_y_3 cube_z_1"></div>
+   </div>
+   <div class="surf_u surf">
+    <div class="cube cube_x_1 cube_y_1 cube_u"></div>
+    <div class="cube cube_x_2 cube_y_1 cube_u"></div>
+    <div class="cube cube_x_3 cube_y_1 cube_u"></div>
+    <div class="cube cube_x_1 cube_y_2 cube_u"></div>
+    <div class="cube cube_x_2 cube_y_2 cube_u"></div>
+    <div class="cube cube_x_3 cube_y_2 cube_u"></div>
+    <div class="cube cube_x_1 cube_y_3 cube_u"></div>
+    <div class="cube cube_x_2 cube_y_3 cube_u"></div>
+    <div class="cube cube_x_3 cube_y_3 cube_u"></div>
+   </div>
+   <div class="surf_f surf">
+    <div class="cube cube_x_1 cube_f cube_z_3"></div>
+    <div class="cube cube_x_2 cube_f cube_z_3"></div>
+    <div class="cube cube_x_3 cube_f cube_z_3"></div>
+    <div class="cube cube_x_1 cube_f cube_z_2"></div>
+    <div class="cube cube_x_2 cube_f cube_z_2"></div>
+    <div class="cube cube_x_3 cube_f cube_z_2"></div>
+    <div class="cube cube_x_1 cube_f cube_z_1"></div>
+    <div class="cube cube_x_2 cube_f cube_z_1"></div>
+    <div class="cube cube_x_3 cube_f cube_z_1"></div>
+   </div>
+   <div class="surf_r surf">
+    <div class="cube cube_r cube_y_1 cube_z_3"></div>
+    <div class="cube cube_r cube_y_2 cube_z_3"></div>
+    <div class="cube cube_r cube_y_3 cube_z_3"></div>
+    <div class="cube cube_r cube_y_1 cube_z_2"></div>
+    <div class="cube cube_r cube_y_2 cube_z_2"></div>
+    <div class="cube cube_r cube_y_3 cube_z_2"></div>
+    <div class="cube cube_r cube_y_1 cube_z_1"></div>
+    <div class="cube cube_r cube_y_2 cube_z_1"></div>
+    <div class="cube cube_r cube_y_3 cube_z_1"></div>
+   </div>
+  </div>
+  </div>
+  <div id="div_right" class="div_middle text">
+  <div class="btnRL" onclick="Rt('R');">R</div>
+  <div class="btnRL" onclick="Rt('E');">E</div>
+  <div class="btnRL" onclick="Rt('R\'');">R'</div>
+  </div>
+  </div>
+  <div id="div_bottom">
+  <div class="btnUD" onclick="Rt('D\'');">D'</div>
+  <div class="btnUD" onclick="Rt('M\'');">M'</div>
+  <div class="btnUD" onclick="Rt('D');">D</div>
+  </div>
+  <div id="div_F">
+  <div class="btnUD" onclick="Rt('F\'');">F'</div>
+  <div class="btnUD" onclick="Rt('M');">M</div>
+  <div class="btnUD" onclick="Rt('F');">F</div>
+  </div>
+ </div>
+ <label for="che">
+ <div id="menuBtn">&#8801</div>
+ </label>
+  <input type="checkbox" id="che">
+ <div id="menu_div">
+ 【コマンド】<div id="cominfoBtn">?</div>
+<div id="cominfo">利用可能コマンド:
+<br><br>回転記号,持ち替え記号
+<br>@→スクランブル
+<br>C→リセット
+<br>P(??)→??パーム<br>&lt;JパームbならP(Jb)&gt;
+<br>s(??)→速度を??秒に設定
+<br>X(),Y(),Z()→視点変更
+<br>,→1手分待つ
+</div>
+<br><textarea id="tarea"></textarea>
+<div id="doT" onclick="Rt(document.getElementById('tarea').value.replace(/\n/g,''));">実行</div>
+<br>【視点】<br>
+角度(x):<br><input type="range" class="range" id="ranX" value="-20" min="-90" max="90" step="1" oninput="change_camera(document.querySelector('#r_1'));document.getElementById('out_x').innerHTML=this.value+'°';"><span id="out_x" class="output">-20°</span>
+<br>角度(y):<br><input type="range" class="range" id="ranY" value="-20" min="-90" max="90" step="1" oninput="change_camera(document.querySelector('#r_1'));document.getElementById('out_y').innerHTML=this.value+'°';"><span id="out_y" class="output">-20°</span>
+<br>角度(z):<br><input type="range" class="range" id="ranZ" value="0" min="-90" max="90" step="1" oninput="change_camera(document.querySelector('#r_1'));document.getElementById('out_z').innerHTML=this.value+'°';"><span id="out_z" class="output">0°</span>
+<br>【スピード】<br>
+<input type="range" class="range" id="ranS" value="0.2" min="0" max="1" step="0.05" oninput="roll_speed=this.value;document.getElementById('out_s').innerHTML=this.value+'s';"><span id="out_s" class="output">0.2s</span>
+<br>【持ち替え】
+<br><div class="mkbtn" onclick="Rt('x')">x</div><div class="mkbtn" onclick="Rt('x\'')">x'</div><div class="mkbtn" onclick="Rt('y')">y</div><div class="mkbtn" onclick="Rt('y\'')">y'</div><div class="mkbtn" onclick="Rt('z')">z</div><div class="mkbtn" onclick="Rt('z\'')">z'</div>
+</div>
+    <input type="checkbox" id="che">
+ 
+</div>
+<script>
+window.onload=init;
+var perms={
+'T':"RUR'U'R'FR2U'R'U'RUR'F'",
+'Y':"F R U' R' U' R U R' F' R U R' U' R' F R F'",
+'Ua':"RU'RURURU'R'U'R'2",
+'Ub':"R2 U R U R' U' R' U' R' U R'",
+'Z':"U' M' U M2' U M2' U M' U2 M2'",
+'H':"M2 U M2 U2 M2 U M2",
+'E':"x' R U' R' D R U R' D' R U R' D R U' R' D'",
+'V':"R' U R' U' y R' F' R2 U' R' U R' F R F",
+'Ra':"R U' R' U' R U R D R' U' R D' R' U2 R' U'",
+'Rb':"R' U2 R U2 R' F R U R' U' R' F' R2' U'",
+'Aa':"x' R2 D2 R' U' R D2 R' U R'",
+'Ab':"x' R U' R D2 R' U R D2 R2",
+'Ja':"L' U R' z R2 U R' U' R2 U D R'",
+'Jb':"R U R' F' R U R' U' R' F R2 U' R' U'",
+'F':"R' U' F' R U R' U' R' F R2 U' R' U' R U R' U R",
+'Ga':"R2 U R' U R' U' R U' R'2 U' D R' U R D'",
+'Gb':"R' U' R y R2 Uw R' U R U' R Uw' R'2",
+'Gc':"R2 Uw' R U' R U R' Uw R2 y R U' R'",
+'Gd':"R U R' U' D R2 U' R U' R' U R' U R2 D'",
+'Na':"R U R' U R U R' F' R U R' U' R' F R2 U' R' U2 R U' R'",
+'Nb':"R' U R U' R' F' U' F R U R' F R' F' R U' R"
+}
+var roll_speed=0.3;
+var scrollData={
+  type:'rotate',
+  value:{x:0,y:0,deg:[-20,-20,0]}
+};
+
+var canvas=document.getElementsByClassName('rubik');
+[].forEach.call(canvas,function(c){
+  c.addEventListener('touchstart',touchstart);
+  c.addEventListener('touchmove',touchmove);
+  c.addEventListener('pointerdown',touchstart);
+  c.addEventListener('pointermove',touchmove);
+});
+
+
+function touchstart(e){
+  var x=e.changedTouches[0].pageX;
+  var y=e.changedTouches[0].pageY;
+  var target=e.target;
+  var type=target.classList[0]=='cube'?'cube':'outer';
+    scrollData.type="rotate";
+    updateXYDeg(x,y,scrollData.value.deg);
+}
+
+
+function touchmove(e){
+  e.preventDefault();
+  var type=scrollData.type;
+  var x=e.changedTouches[0].pageX;
+  var y=e.changedTouches[0].pageY;
+  var sval=scrollData.value;
+  var lx=sval.x;
+  var ly=sval.y;
+  var ldeg=sval.deg;
+  var target=e.target;
+  if(type=="rotate"){
+    var deg=change_camera(document.querySelector("#r_1"),[ldeg[0]-(y-ly)/2,ldeg[1]+(x-lx)/2,ldeg[2]]);
+    updateXYDeg(x,y,deg);
+  }else
+  if(type=="rotate"){
+    
+    
+  }
+}
+
+
+
+
+
+
+ function Rt(s){
+  roll(document.getElementById('r_1'),s,{"speed":roll_speed});
+ }
+ 
+ 
+ function updateXYDeg(x,y,deg){
+   scrollData.value.x=x;
+   scrollData.value.y=y;
+   scrollData.value.deg=deg;
+ }
+ 
+ function change_camera(rub,val){
+ val=val||[];
+  var rx=val[0]||document.getElementById('ranX').value;
+  var ry=val[1]||document.getElementById('ranY').value;
+  var rz=val[2]||document.getElementById('ranZ').value;
+  var newtra="rotateX("+rx+"deg) rotateY("+ry+"deg) rotateZ("+rz+"deg)";
+  rub.style.transform=newtra;
+  rub.style.WebkitTransform=newtra;
+  return[(rx+360)%360,(ry+360)%360,(rz+360)%360];
+ }
+ 
+ 
+ 
+ function init(){
+  Array.prototype.forEach.call(document.querySelectorAll('.surf_u .cube'),function(e){e.style.backgroundColor="#ff0";});
+  Array.prototype.forEach.call(document.querySelectorAll('.surf_f .cube'),function(e){e.style.backgroundColor="#0f0";});
+  Array.prototype.forEach.call(document.querySelectorAll('.surf_b .cube'),function(e){e.style.backgroundColor="#00f";});
+  Array.prototype.forEach.call(document.querySelectorAll('.surf_d .cube'),function(e){e.style.backgroundColor="#fff";});
+  Array.prototype.forEach.call(document.querySelectorAll('.surf_l .cube'),function(e){e.style.backgroundColor="#f00";});
+  Array.prototype.forEach.call(document.querySelectorAll('.surf_r .cube'),function(e){e.style.backgroundColor="#f80";});
+ }
+ 
+ 
+ function roll(elem,txt,op){
+  roll_f(elem,txt.replace(/ |　/g,'').replace(/‘|’|′/g,"'").replace(/([^\(]+?)(?=([A-Z]|x|y|z|u|r|(s|P|X|Y|Z)\(|@|,))/g,'$1;').split(';'),op);
+ }
+ 
+ 
+ function r_Scramble(){
+  var res=[];
+  var list=['R','U','F','L','D','B','M','S','E','Lw'];
+  var r=[(Math.floor(Math.random()*100000)+"").split('')
+  ,(Math.floor(Math.random()*100000)+"").split('')
+  ,(Math.floor(Math.random()*100000)+"").split('')
+  ,(Math.floor(Math.random()*100000)+"").split('')];
+  for(var i1=0;i1<5;i1++){
+    for(var i2=0;i2<4;i2++){
+     res.push(list[r[i2][i1]*1]+(Math.random()<0.5?'':"2")+(Math.random()<0.5?'':"'"));
+   }
+  }
+  return res;
+ } 
+ 
+ 
+ 
+ function roll_f(elem,srs,op){
+  var sr=srs[0];
+  var deg=scrollData.value.deg;
+  function rr(p){
+    return["F","F'","L","L'","B","B'","R","R'","M","M'","S'","S"][["R","R'","F","F'","L","L'","B","B'","S","S'","M","M'"].indexOf(p)]||p;
+  }
+  function dd(p){
+    return["F","F'","D","D'","B","B'"][["D","D'","B","B'","U","U'"].indexOf(p)]||p;
+  }
+  var i=Math.floor((deg[1]+45)/90);
+  while (i-->0)sr=rr(sr);
+  var w=sr.indexOf("w")+1;
+  var ch=sr.indexOf("'")+1;
+  var dou=/2$|2'$|2w$|2'w$|2w'$/.test(sr)?2:1;
+  var kg=sr.replace('w','').replace("'",'').replace("2",'');
+  var speed=0;
+  var slin=1;
+  if(op.speed===undefined){op.speed=0.2;}
+  if(dou-1){
+   srs.unshift(sr.replace('2',''));
+   srs[1]=sr.replace('2','');
+   roll_f(elem,srs,op);
+   return;
+  }
+  if(/^(R|U|F|L|D|B|M|E|S|x|y|z|u|r)$/.test(kg)){
+  speed=op.speed;
+    eval("roll_"+kg+(ch?"_":"")+"(elem,w,speed,dou);");
+  }else
+  /*comand_checker*/
+  if(sr=="C"){
+   init();
+  }else
+  if(sr=="@"){
+   srs=r_Scramble().concat(srs.slice(1));
+   slin=0;
+  }else
+  if(sr==","){
+   speed=op.speed;
+  }else
+  if(/^s\(.*?\)$/.test(sr)){
+   var news=sr.match(/\(.*?\)/)[0].slice(1,-1)*1;
+   if((news||news===0)&&news>=0&&news<=2){
+    news=Math.floor(news*10)/10;
+    roll_speed=news;
+    document.getElementById('ranS').value=news;
+    document.getElementById('out_s').innerHTML=news+'s';
+    op.speed=news;
+   }
+  }else
+  if(/^P\([A-Z]([a-z]|)\)$/.test(kg)){
+   var pn=kg.match(/P\(.+?\)/)[0].slice(2,-1);
+   var srs=(eval("perms."+pn)||"").replace(/ |　/g,'').replace(/‘|’|′/g,"'").replace(/([^\(]+?)(?=([A-Z]|x|y|z|u|r|s\(|P\(|@|,))/g,'$1;').split(';').concat(srs.slice(1));
+   slin=0;
+  }else
+  if(/^(X|Y|Z)\(.*?\)$/.test(sr)){
+   var news=sr.slice(2,-1)*1;
+   if((news||news===0)&&-90<=news&&90>=news){
+   var vec=sr.slice(0,1);
+   document.getElementById('ran'+vec).value=news;
+   change_camera(document.querySelector('#r_1'));
+   document.getElementById('out_'+vec.toLowerCase()).innerHTML=news+'°';
+   }
+  }
+  
+  
+ if(srs.length-1){
+ setTimeout(function(){roll_f(elem,srs.slice(slin),op)},speed*1000);
+ }
+ }
+
+ function roll_undefined(){
+ 
+ }
+
+
+ function roll_R(elem,w,speed){
+  if(w){roll_M_(elem,w,speed)}
+  X_Rotate(elem,speed,3,0);
+  surf_Rotate(elem,speed,"r",0,"Z");
+ }
+ 
+ function roll_R_(elem,w,speed){
+ if(w){roll_M(elem,w,speed)}
+ X_Rotate(elem,speed,3,1);
+ surf_Rotate(elem,speed,"r",1,"Z_");
+ }
+ 
+function roll_U(elem,w,speed){
+ if(w){roll_E_(elem,w,speed)}
+ Z_Rotate(elem,speed,3,1);
+ surf_Rotate(elem,speed,"u",1,"Z_");
+}
+
+function roll_U_(elem,w,speed){
+ if(w){roll_E(elem,w,speed)}
+ Z_Rotate(elem,speed,3,0);
+ surf_Rotate(elem,speed,"u",0,"Z");
+}
+
+ function roll_F(elem,w,speed){
+ if(w){roll_S(elem,w,speed)}
+ Y_Rotate(elem,speed,1,0);
+ surf_Rotate(elem,speed,"f",0,"Z");
+ }
+ 
+ function roll_F_(elem,w,speed){
+ if(w){roll_S_(elem,w,speed)}
+ Y_Rotate(elem,speed,1,1);
+ surf_Rotate(elem,speed,"f",1,"Z_");
+ }
+ 
+function roll_L(elem,w,speed){
+if(w){roll_M(elem,w,speed)}
+ X_Rotate(elem,speed,1,1);
+ surf_Rotate(elem,speed,"l",1,"Z_");
+}
+
+function roll_L_(elem,w,speed,dou){
+if(w){roll_M_(elem,w,speed)}
+X_Rotate(elem,speed,1,0);
+surf_Rotate(elem,speed,"l",0,"Z");
+}
+ 
+function roll_D(elem,w,speed,dou){
+ if(w){roll_E(elem,w,speed)}
+ Z_Rotate(elem,speed,1,0);
+ surf_Rotate(elem,speed,"d",0,"Z");
+}
+
+function roll_D_(elem,w,speed,dou){
+ if(w){roll_E_(elem,w,speed)}
+ Z_Rotate(elem,speed,1,1);
+ surf_Rotate(elem,speed,"d",1,"Z_");
+}
+ 
+ function roll_B(elem,w,speed,dou){
+ if(w){roll_S_(elem,w,speed)}
+ Y_Rotate(elem,speed,3,1);
+ surf_Rotate(elem,speed,"b",1,"Z_");
+ }
+ 
+ function roll_B_(elem,w,speed,dou){
+ if(w){roll_S(elem,w,speed)}
+ Y_Rotate(elem,speed,3,0);
+ surf_Rotate(elem,speed,"b",0,"Z");
+ }
+ 
+ 
+ function roll_M(elem,w,speed,dou){
+ X_Rotate(elem,speed,2,1);
+ }
+ 
+ function roll_M_(elem,w,speed,dou){
+ X_Rotate(elem,speed,2,0);
+ }
+ 
+ function roll_E_(elem,w,speed){
+ Z_Rotate(elem,speed,2,1);
+ }
+ 
+ function roll_E(elem,w,speed){
+ Z_Rotate(elem,speed,2,0);
+ }
+ 
+ function roll_S(elem,w,speed){
+ Y_Rotate(elem,speed,2,0);
+ }
+ 
+ function roll_S_(elem,w,speed){
+ Y_Rotate(elem,speed,2,1);
+ }
+ 
+ function roll_r(elem,w,speed){
+  roll_x(elem,w,speed);
+ }
+ 
+ function roll_r_(elem,w,speed){
+ roll_x_(elem,w,speed);
+ }
+ 
+ function roll_u(elem,w,speed){
+ roll_y(elem,w,speed);
+ }
+ 
+ function roll_u_(elem,w,speed){
+ roll_y_(elem,w,speed);
+ }
+ 
+ 
+ function roll_x(elem,w,speed){
+  X_Rotate(elem,speed,1,0);
+  X_Rotate(elem,speed,2,0);
+  X_Rotate(elem,speed,3,0);
+  surf_Rotate(elem,speed,"r",0,"Z");
+  surf_Rotate(elem,speed,"l",0,"Z");
+ }
+ 
+ function roll_x_(elem,w,speed){
+ X_Rotate(elem,speed,1,1);
+ X_Rotate(elem,speed,2,1);
+ X_Rotate(elem,speed,3,1);
+ surf_Rotate(elem,speed,"r",1,"Z_");
+ surf_Rotate(elem,speed,"l",1,"Z_");
+ }
+ 
+ function roll_y(elem,w,speed){
+ Z_Rotate(elem,speed,1,1);
+ Z_Rotate(elem,speed,2,1);
+ Z_Rotate(elem,speed,3,1);
+ surf_Rotate(elem,speed,"d",1,"Z_");
+ surf_Rotate(elem,speed,"u",1,"Z_");
+ }
+ 
+ function roll_y_(elem,w,speed){
+ Z_Rotate(elem,speed,1,0);
+ Z_Rotate(elem,speed,2,0);
+ Z_Rotate(elem,speed,3,0);
+ surf_Rotate(elem,speed,"d",0,"Z");
+ surf_Rotate(elem,speed,"u",0,"Z");
+ }
+ 
+ function roll_z(elem,w,speed){
+ Y_Rotate(elem,speed,1,0);
+ Y_Rotate(elem,speed,2,0);
+ Y_Rotate(elem,speed,3,0);
+ surf_Rotate(elem,speed,"f",0,"Z");
+ surf_Rotate(elem,speed,"b",0,"Z");
+ }
+ 
+ function roll_z_(elem,w,speed){
+ Y_Rotate(elem,speed,1,1);
+ Y_Rotate(elem,speed,2,1);
+ Y_Rotate(elem,speed,3,1);
+ surf_Rotate(elem,speed,"f",1,"Z_");
+ surf_Rotate(elem,speed,"b",1,"Z_");
+ }
+ 
+ function rotateX(elem,speed,dou){
+  elem.style.WebkitAnimation="";
+  elem.style.animation="";
+  void elem.offsetWidth;
+  elem.style.WebkitAnimation="rX linear "+speed+"s";
+  elem.style.animation="rX linear "+speed+"s";
+ }
+ 
+ function rotateY(elem,speed,dou){
+  elem.style.WebkitAnimation="";
+  elem.style.animation="";
+  void elem.offsetWidth;
+  elem.style.WebkitAnimation="rY linear "+speed+"s";
+  elem.style.animation="rY linear "+speed+"s";
+ }
+ 
+ function rotateZ(elem,speed){
+ elem.style.WebkitAnimation="";
+ elem.style.animation="";
+ void elem.offsetWidth;
+ elem.style.WebkitAnimation="rZ linear "+speed+"s";
+ elem.style.animation="rZ linear "+speed+"s";
+ }
+ 
+function rotateX_(elem,speed,dou){
+ elem.style.WebkitAnimation="";
+ elem.style.animation="";
+ void elem.offsetWidth;
+ elem.style.WebkitAnimation="rX_ linear "+speed+"s";
+ elem.style.animation="rX_ linear "+speed+"s";
+}
+
+function rotateY_(elem,speed,dou){
+ elem.style.WebkitAnimation="";
+ elem.style.animation="";
+ void elem.offsetWidth;
+ elem.style.WebkitAnimation="rY_ linear "+speed+"s";
+ elem.style.animation="rY_ linear "+speed+"s";
+}
+
+function rotateZ_(elem,speed,dou){
+elem.style.WebkitAnimation="";
+elem.style.animation="";
+void elem.offsetWidth;
+elem.style.WebkitAnimation="rZ_ linear "+speed+"s";
+elem.style.animation="rZ_ linear "+speed+"s";
+}
+
+
+function X_Rotate(elem,speed,x,s){
+ var query='.cube_x_'+x;
+ var es=elem.querySelectorAll(query);
+ for(var i=0;i<es.length;i++){
+  eval("rotateX"+(s?"_":"")+"(es[i],speed)");
+ }
+ g_rC(elem,s?['f','u','b','d']:['f','d','b','u'],s?[1,0,1,0]:[0,1,0,1],'x_'+x);
+}
+
+
+function Y_Rotate(elem,speed,x,s){
+ var query='.surf_u .cube_y_'+x+',.surf_d .cube_y_'+x;
+ var query2='.surf_l .cube_y_'+x+',.surf_r .cube_y_'+x;
+ var es=elem.querySelectorAll(query);
+  var es2=elem.querySelectorAll(query2);
+ for(var i=0;i<es.length;i++){
+  eval("rotateY"+(s?"":"_")+"(es[i],speed);");
+  }
+  for(var i2=0;i2<es2.length;i2++){
+  eval("rotateX"+(s?"":"_")+"(es2[i2],speed);");
+  }
+  
+  g_rC(elem,s?['u','r','d','l']:['u','l','d','r'],s?[0,1,0,1]:[1,0,1,0],'y_'+x);
+}
+
+
+function Z_Rotate(elem,speed,x,s){
+ var query='.cube_z_'+x;
+ var es=elem.querySelectorAll(query);
+ for(var i=0;i<es.length;i++){
+  eval("rotateY"+(s?"_":"")+"(es[i],speed)");
+ }
+ g_rC(elem,s?['f','r','b','l']:['f','l','b','r'],s?[0,1,0,1]:[1,0,1,0],'z_'+x);
+}
+
+
+
+function surf_Rotate(elem,speed,lr,s,xyz){
+ var zs=elem.querySelectorAll('.cube_'+lr);
+ var rcs=[];
+ var nms=[2,5,8,1,4,7,0,3,6];
+ for(var zi=0;zi<zs.length;zi++){
+  eval("rotate"+xyz+"(zs[zi],speed)");
+ }
+ Array.prototype.forEach.call(zs,function(e){rcs[rcs.length]=e.style.backgroundColor;});
+ for(var nm=0;nm<nms.length;nm++){
+  zs[s?nm:nms[nm]].style.backgroundColor=rcs[s?nms[nm]:nm];
+ }
+}
+
+
+function g_rC(elem,surfs,io,xyz){
+ var bss=[];
+ for(var bi=0;bi<4;bi++){
+ bss[bi]=elem.querySelector('.surf_'+surfs[bi]).querySelectorAll('.cube_'+xyz);
+ }
+ var fcs=[];
+ Array.prototype.forEach.call(bss[0],function(e){fcs[fcs.length]={"style":{"backgroundColor":e.style.backgroundColor}};});
+ 
+ for(var si=0;si<4;si++){
+  var bs1=bss[si];
+  var bs2=null;
+  if(si!=3){
+   bs2=bss[si+1];
+  }else{
+   bs2=fcs;
+  }
+  for(var fi=0;fi<3;fi++){
+   bs1[io[si]?2-fi:fi].style.backgroundColor=bs2[fi].style.backgroundColor;
+  }
+ }
+}
+
+
+</script>
+</body>
+</html>
